@@ -24,14 +24,16 @@ class AnimateMaze(Scene):
         self.play(FadeOut(title, body, shift=OUT))
 
         # 2. Maze Generation
-        maze = Maze(rows=20, cols=40, n_targets=12, fill_fraction=0.2, random_seed=None)
+        maze = Maze(
+            rows=25, cols=60, n_targets=16, fill_fraction=0.25, random_seed=None
+        )
 
         boxes = VGroup(
             *[
                 Text(
                     s,
                     t2c={maze.wall_cell: WHITE, maze.target_cell: RED},  # type: ignore
-                ).scale(0.75)
+                ).scale(0.5)
                 for s in maze.get_all_cell_values()
             ]
         )
@@ -41,10 +43,10 @@ class AnimateMaze(Scene):
             cols=maze.num_cols,
             flow_order="rd",
         )
-        self.play(Write(boxes), run_time=5)
+        self.play(ShowIncreasingSubsets(boxes), run_time=5)
         self.wait(1)
 
-        # 4. Optimal Point
+        # 3. Optimal Point
         solver = MazeSolver(maze)
         optimal_point, min_dist = solver.find_optimal_point()
 
@@ -57,18 +59,18 @@ class AnimateMaze(Scene):
             return [new_point_x, new_point_y, 0.0]  # type: ignore
 
         optimal_mark = Cross(
-            stroke_color=GREEN, scale_factor=0.15, stroke_width=8
+            stroke_color=GREEN, scale_factor=0.125, stroke_width=8
         ).move_to(get_box_coordinates(*optimal_point))
         self.play(Indicate(optimal_mark), run_time=1)
         self.wait(1)
 
-        # 5. Path Animation
+        # 4. Path Animation
         paths = solver.get_paths_from_point(optimal_point)
         path_points = VGroup(
             *[
                 Text("+", font_size=32, color=BLUE, stroke_width=0, weight=BOLD)
                 .move_to(get_box_coordinates(*point))
-                .scale(0.75)
+                .scale(0.5)
                 for point in paths
             ]
         )
@@ -76,7 +78,7 @@ class AnimateMaze(Scene):
         self.play(Write(path_points), run_time=4)
         self.wait(4)
 
-        # 6. Conclusion Scene
+        # 5. Conclusion Scene
         conclusion_text = Text("Solution Achieved!", font_size=48, font="Noto Sans")
         summary = (
             VGroup(
