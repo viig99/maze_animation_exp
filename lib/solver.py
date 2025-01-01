@@ -1,5 +1,6 @@
 from lib.maze import Maze
 from lib.distance import DistanceCalculator, reconstruct_path
+from rich.console import Console
 
 
 class MazeSolver:
@@ -72,7 +73,7 @@ class MazeSolver:
 
 
 if __name__ == "__main__":
-    maze = Maze(rows=20, cols=40, n_targets=8, fill_fraction=0.1, random_seed=57)
+    maze = Maze(rows=25, cols=60, n_targets=16, fill_fraction=0.25, random_seed=None)
 
     solver = MazeSolver(maze)
     best_cell, best_dist_sum = solver.find_optimal_point()
@@ -80,4 +81,14 @@ if __name__ == "__main__":
 
     solver.mark_point(given_point=best_cell, marking_cell_type="X")
     solver.mark_paths_from_point(best_cell, marking_cell_type=".")
-    print(maze)
+    console = Console()
+
+    maze_str = str(maze)
+
+    # assign different colors to different cell types
+    maze_str = maze_str.replace(maze.wall_cell, f"[white]{maze.wall_cell}[/]")
+    maze_str = maze_str.replace("X", f"[bold green]X[/]")
+    maze_str = maze_str.replace(maze.target_cell, f"[bold violet]{maze.target_cell}[/]")
+    maze_str = maze_str.replace(".", f"[bold blue].[/]")
+
+    console.print(maze_str)
