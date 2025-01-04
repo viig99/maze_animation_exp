@@ -103,7 +103,7 @@ class Maze3D:
 
         ax.set_xlabel("X-axis")
         ax.set_ylabel("Y-axis")
-        ax.set_zlabel("Z-axis")
+        ax.set_zlabel("Z-axis")  # type: ignore
         ax.set_title("3D Maze Visualization")
         ax.legend()
         plt.show()
