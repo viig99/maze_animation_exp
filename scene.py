@@ -4,6 +4,13 @@ from lib.solver import MazeSolver
 
 
 class AnimateMaze(Scene):
+
+    def setup(self):
+        self.maze = Maze(
+            rows=25, cols=60, n_targets=16, fill_fraction=0.25, random_seed=None
+        )
+        self.maze_solver = MazeSolver(self.maze)
+
     def construct(self):
         # 1. Introduction Scene
         title = Text("Optimal path finding.", font_size=64)
@@ -24,36 +31,32 @@ class AnimateMaze(Scene):
         self.play(FadeOut(title, body, shift=OUT))
 
         # 2. Maze Generation
-        maze = Maze(
-            rows=25, cols=60, n_targets=16, fill_fraction=0.25, random_seed=None
-        )
 
         boxes = VGroup(
             *[
                 Text(
                     s,
-                    t2c={maze.wall_cell: WHITE, maze.target_cell: RED},  # type: ignore
+                    t2c={self.maze.wall_cell: WHITE, self.maze.target_cell: RED},  # type: ignore
                 ).scale(0.5)
-                for s in maze.get_all_cell_values()
+                for s in self.maze.get_all_cell_values()
             ]
         )
         boxes.arrange_in_grid(
             buff=(0.0, 0.0),
-            rows=maze.num_rows,
-            cols=maze.num_cols,
+            rows=self.maze.num_rows,
+            cols=self.maze.num_cols,
             flow_order="rd",
         )
         self.play(ShowIncreasingSubsets(boxes), run_time=5)
         self.wait(1)
 
         # 3. Optimal Point
-        solver = MazeSolver(maze)
-        optimal_point, min_dist = solver.find_optimal_point()
+        optimal_point, min_dist = self.maze_solver.find_optimal_point()
 
         def get_box_coordinates(grid_row, grid_col) -> tuple[float, float, float]:
             top_left_corner = boxes[0].get_center()
             delta_x = boxes[1].get_center()[0] - top_left_corner[0]
-            delta_y = boxes[maze.num_cols].get_center()[1] - top_left_corner[1]
+            delta_y = boxes[self.maze.num_cols].get_center()[1] - top_left_corner[1]
             new_point_x = top_left_corner[0] + (grid_col * delta_x)
             new_point_y = top_left_corner[1] + (grid_row * delta_y)
             return [new_point_x, new_point_y, 0.0]  # type: ignore
@@ -65,7 +68,7 @@ class AnimateMaze(Scene):
         self.wait(1)
 
         # 4. Path Animation
-        paths = solver.get_paths_from_point(optimal_point)
+        paths = self.maze_solver.get_paths_from_point(optimal_point)
         path_points = VGroup(
             *[
                 Text("+", font_size=32, color=BLUE, stroke_width=0, weight=BOLD)
